@@ -1,5 +1,7 @@
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Properties;
 
 import javax.mail.BodyPart;
@@ -13,8 +15,11 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.FlagTerm;
 
+import org.bouncycastle.cms.CMSException;
+
 public class InboxReader {
 
+	@SuppressWarnings("resource")
 	public static void main(String args[]) {
 		Properties props = System.getProperties();
 		props.setProperty("mail.store.protocol", "imaps");
@@ -37,8 +42,8 @@ public class InboxReader {
 			for (Message message : messages) {
 
 				Multipart mp = (Multipart) message.getContent();
-				System.out.println("(idx = " + i + ") "
-						+ message.getSubject() + "\n");
+				System.out.println("(idx = " + i + ") " + message.getSubject()
+						+ "\n");
 				i++;
 				for (int b = 0; b < mp.getCount(); b++) {
 					BodyPart p = mp.getBodyPart(b);
@@ -51,6 +56,39 @@ public class InboxReader {
 								+ p.getContentType() + "] (" + q.length()
 								+ " chars)");// prints the body
 						System.out.println(q);// prints the body
+					} else if ((p.getFileName() != null && p.getFileName()
+							.endsWith(".xml.p7m"))
+							|| p.getContentType().startsWith(
+									"APPLICATION/PKCS7-MIME")) {
+						// Object pp = p.getContent();
+						// String q = pp.toString();// object has the body
+						// content
+
+						InputStream is = (InputStream) p.getContent();
+						BufferedReader br = null;
+						String totalLine = new String(), line;
+						br = new BufferedReader(new InputStreamReader(is));
+						while ((line = br.readLine()) != null)
+							totalLine += line + "";
+						byte[] bytes = totalLine.getBytes();
+						// totalLine = new String(bytes, "UTF-8");
+
+						P7mUtilities u = new P7mUtilities(totalLine.getBytes());
+						System.out.println(p.getFileName() + " ["
+								+ p.getContentType() + "] (" + bytes.length
+								+ " chars)");
+						try {
+							boolean r = u.verifySignature(null);
+							if (r)
+								System.out.println("FIRMA OK");
+							else
+								System.out.println("FIRMA FASULLA");
+							String xml = u.getXml();
+							System.out.println(xml);
+						} catch (CMSException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			}

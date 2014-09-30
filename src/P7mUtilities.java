@@ -1,6 +1,8 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -32,8 +34,32 @@ public class P7mUtilities {
 			'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
 			'8', '9', '+', '/', '=' };
 
+	byte[] p7m;
+
+
+	public P7mUtilities(String path) throws IOException {
+		super();
+		byte[] s = Files.readAllBytes(Paths.get(path));
+		init(s);
+	}
+
+	public P7mUtilities(byte[] p7m) {
+		super();
+		init(p7m);
+	}
+
+	private void init(byte[] p7m) {
+		this.p7m = p7m;
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @throws CMSException
+	 * @throws IOException
+	 */
 	// Restituisce il contenuto originale del file
-	public static String getXml(byte[] p7m) throws CMSException, IOException {
+	public String getXml() throws CMSException, IOException {
 		Security.addProvider(new BouncyCastleProvider());
 		CMSSignedData sdp = new CMSSignedData(p7m);
 		CMSProcessable cmsp = sdp.getSignedContent();
@@ -44,11 +70,15 @@ public class P7mUtilities {
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param signercert
+	 * @return
+	 */
 	// Verifica la firma.
 	@SuppressWarnings("rawtypes")
-	public static boolean verifySignature(byte[] sigbytes,
-			X509Certificate signercert) {
-
+	public boolean verifySignature(X509Certificate signercert) {
+		byte[] sigbytes = p7m;
 		Security.addProvider(new BouncyCastleProvider());
 
 		if (isBase64Encoded(sigbytes)) {
@@ -121,6 +151,11 @@ public class P7mUtilities {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	private static final boolean isBase64Encoded(byte[] data) {
 		Arrays.sort(Base64Map);
 		for (int i = 0; i < data.length; i++) {
@@ -130,5 +165,29 @@ public class P7mUtilities {
 				return false;
 		}
 		return true;
+	}
+
+	/**
+	 * 
+	 * @param args
+	 */
+	public static void main(String args[]) {
+		try {
+			P7mUtilities u = new P7mUtilities("IT01234567890_11111.xml.p7m");
+			boolean r = u.verifySignature(null);
+			if (r)
+				System.out.println("FIRMA OK");
+			else
+				System.out.println("FIRMA FASULLA");
+			String xml = u.getXml() ;
+			System.out.println("----------------------------------------");
+			System.out.println(xml);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("ERRORE: " + e.getLocalizedMessage());
+		} catch (CMSException e) {
+			e.printStackTrace();
+			System.out.println("ERRORE: " + e.getLocalizedMessage());
+		}
 	}
 }
