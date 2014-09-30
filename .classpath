@@ -15,5 +15,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/LIBS/javax.mail.jar"/>
+	<classpathentry kind="lib" path="/LIBS/bcpkix-jdk15on-151.jar"/>
+	<classpathentry kind="lib" path="/LIBS/bcprov-jdk15on-151.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
