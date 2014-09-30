@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 7 [1.7.0_55]">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="/LIBS/commons-net-3.3.jar"/>
 	<classpathentry kind="lib" path="/LIBS/apache-commons.jar"/>
 	<classpathentry kind="lib" path="/LIBS/commons-codec-1.9.jar"/>
@@ -15,5 +10,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/LIBS/javax.mail.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
