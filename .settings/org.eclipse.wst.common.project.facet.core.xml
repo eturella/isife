@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faceted-project>
-  <runtime name="Java SE 7 [1.7.0_55]"/>
+  <runtime name="Java SE 7 [1.7.0_45]"/>
   <fixed facet="jpt.jpa"/>
   <fixed facet="java"/>
-  <installed facet="java" version="1.7"/>
   <installed facet="jpt.jpa" version="2.1"/>
   <installed facet="jpt.jaxb" version="2.2"/>
+  <installed facet="java" version="1.7"/>
 </faceted-project>

@@ -1,6 +1,4 @@
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Security;
@@ -36,7 +34,6 @@ public class P7mUtilities {
 
 	byte[] p7m;
 
-
 	public P7mUtilities(String path) throws IOException {
 		super();
 		byte[] s = Files.readAllBytes(Paths.get(path));
@@ -63,9 +60,9 @@ public class P7mUtilities {
 		Security.addProvider(new BouncyCastleProvider());
 		CMSSignedData sdp = new CMSSignedData(p7m);
 		CMSProcessable cmsp = sdp.getSignedContent();
-		ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-		ObjectOutputStream oStream = new ObjectOutputStream(bStream);
-		oStream.writeObject(cmsp.getContent());
+		// ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+		// ObjectOutputStream oStream = new ObjectOutputStream(bStream);
+		// oStream.writeObject(cmsp.getContent());
 		String result = new String((byte[]) cmsp.getContent());
 		return result;
 	}
@@ -146,6 +143,7 @@ public class P7mUtilities {
 			System.out
 					.println("Couldn't verify included-content CMS signature\n"
 							+ ex.toString());
+			ex.printStackTrace();
 		}
 
 		return false;
@@ -179,7 +177,7 @@ public class P7mUtilities {
 				System.out.println("FIRMA OK");
 			else
 				System.out.println("FIRMA FASULLA");
-			String xml = u.getXml() ;
+			String xml = u.getXml();
 			System.out.println("----------------------------------------");
 			System.out.println(xml);
 		} catch (IOException e) {

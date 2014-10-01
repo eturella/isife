@@ -1,7 +1,6 @@
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import javax.mail.BodyPart;
@@ -16,6 +15,8 @@ import javax.mail.Store;
 import javax.mail.search.FlagTerm;
 
 import org.bouncycastle.cms.CMSException;
+
+import com.sun.mail.util.BASE64DecoderStream;
 
 public class InboxReader {
 
@@ -50,32 +51,30 @@ public class InboxReader {
 					if ((p.getFileName() != null && p.getFileName().endsWith(
 							".xml"))
 							|| p.getContentType().startsWith("TEXT/XML")) {
-						Object pp = p.getContent();
-						String q = pp.toString();// object has the body content
+						// Object pp = p.getContent();
+						// String q = pp.toString();// object has the body
+						// content
+						byte[] q = scaricaAllegato(p);
 						System.out.println(p.getFileName() + " ["
-								+ p.getContentType() + "] (" + q.length()
+								+ p.getContentType() + "] (" + q.length
 								+ " chars)");// prints the body
 						System.out.println(q);// prints the body
 					} else if ((p.getFileName() != null && p.getFileName()
 							.endsWith(".xml.p7m"))
 							|| p.getContentType().startsWith(
 									"APPLICATION/PKCS7-MIME")) {
-						// Object pp = p.getContent();
-						// String q = pp.toString();// object has the body
-						// content
+						byte[] q = scaricaAllegato(p);
+						// byte[] file = Files.readAllBytes(Paths
+						// .get("IT01234567890_11111.xml.p7m"));
+						// byte[] imap = q; // .getBytes();
+						// PrintStream out = new PrintStream(new
+						// FileOutputStream(
+						// "testP7M.txt"));
+						// out.print(q);
 
-						InputStream is = (InputStream) p.getContent();
-						BufferedReader br = null;
-						String totalLine = new String(), line;
-						br = new BufferedReader(new InputStreamReader(is));
-						while ((line = br.readLine()) != null)
-							totalLine += line + "";
-						byte[] bytes = totalLine.getBytes();
-						// totalLine = new String(bytes, "UTF-8");
-
-						P7mUtilities u = new P7mUtilities(totalLine.getBytes());
+						P7mUtilities u = new P7mUtilities(q);
 						System.out.println(p.getFileName() + " ["
-								+ p.getContentType() + "] (" + bytes.length
+								+ p.getContentType() + "] (" + q.length
 								+ " chars)");
 						try {
 							boolean r = u.verifySignature(null);
@@ -100,10 +99,30 @@ public class InboxReader {
 			e.printStackTrace();
 			System.exit(2);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	@SuppressWarnings("resource")
+	private static byte[] scaricaAllegato(BodyPart p) throws IOException,
+			MessagingException, UnsupportedEncodingException {
+		Object o = p.getContent();
+		if (o instanceof BASE64DecoderStream) {
+			BASE64DecoderStream is = (BASE64DecoderStream) o;
+			ByteArrayOutputStream mReadBuffer = new ByteArrayOutputStream();
+			byte[] b = new byte[1000];
+			int tot = 0;
+			while ((tot = is.read(b, 0, b.length)) > 0) {
+				mReadBuffer.write(b, 0, tot);
+			}
+			b = mReadBuffer.toByteArray();
+			System.out.println("LETTI: " + b.length + " bytes");
+			return b;
+		} else if (o instanceof String) {
+			return ((String) o).getBytes();
+		}
+		return null;
 	}
 
 }
